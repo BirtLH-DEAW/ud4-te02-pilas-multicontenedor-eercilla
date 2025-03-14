@@ -1,0 +1,51 @@
+# Versión utilizada
+version: '3'
+
+# Configuración de los servidores que vamos a necesitar
+services: 
+ 
+  # mysql es el nombre que vamos a dar a este primer servicio
+  # Será el nombre que tendremos que usar cuando nos refiramos a él
+  mysql:
+    image: mysql:5.7
+    container_name: proyecto_db
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: dwes
+      MYSQL_PASSWORD: dwes
+      MYSQL_DATABASE: dwes
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+      - mysql_data:/var/lib/mysql
+
+  # Servicio php creado mediante el dockerfile de la carpeta 'php'
+
+  php:
+      build: php/
+      container_name: proyecto
+      ports:
+        - 80:80
+      volumes:
+        - proyecto:/var/www/html/
+      depends_on:
+        - mysql
+
+  # Servicio phpmyadmin
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: proyecto_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 8080:80
+    depends_on:
+      - mysql
+
+
+volumes: 
+  proyecto:
+  mysql_data:
